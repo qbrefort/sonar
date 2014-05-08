@@ -1,6 +1,8 @@
 #include "sivia.h"
 #include "math.h"
 
+#include <string>
+
 
 float get_angle(double p1x,double p1y,double p2x,double p2y){
     return atan2(p1y - p2y, p1x - p2x);
@@ -68,14 +70,14 @@ Sivia::Sivia(repere& R, struct sivia_struct *par) : R(R) {
     Variable x,y;
     double xb=par->xb1,yb=par->yb1;
 
-    double arc=3.14/2;
+    double arc=3.14/4;
 
     double r = pow(par->sonar_radius,2);
     double th1 = par->th1;
     double th2=th1+arc;
-    double th21=th1 -50;
+    double th21= par->th2;
     double th22=th21 + arc;
-    double th31=th1 + 70;
+    double th31= par->th3;
     double th32=th31 + arc;
     double e=0.5;
     double epsilon = par->epsilon;
@@ -237,7 +239,7 @@ Sivia::Sivia(repere& R, struct sivia_struct *par) : R(R) {
     double yr = par->yr; //robot position y
 
     double wr = 1; //robot width
-    double lr = 4; //robot length
+    double lr = 10; //robot length
 
     NumConstraint inrx1(x,y,x>xr+wr/2);
     NumConstraint outrx1(x,y,x<xr+wr/2);
@@ -389,15 +391,22 @@ Sivia::Sivia(repere& R, struct sivia_struct *par) : R(R) {
         par->isinside=0;
     }
     par->vin.clear();
-
+    par->state.clear();
     if (par->isinside1 ==1 || par->isinside2 ==1 || par->isinside3 ==1){
-        double aimth1 = get_angle(xb,yb,par->xin,par->yin)+M_PI;
+
+        double aimth1 = get_angle(xb,yb,par->xin,par->yin)+M_PI ;
         double aimth2 = get_angle(xb2,yb2,par->xin,par->yin)+M_PI;
         double aimth3 = get_angle(xb3,yb3,par->xin,par->yin)+M_PI;
 
         R.DrawLine(xb,yb,xb+r*cos(aimth1),yb+r*sin(aimth1),QPen(Qt::red));
         R.DrawLine(xb2,yb2,xb2+r*cos(aimth2),yb2+r*sin(aimth2),QPen(Qt::red));
         R.DrawLine(xb3,yb3,xb3+r*cos(aimth3),yb3+r*sin(aimth3),QPen(Qt::red));
+
+        par->state = std::string("found");
+        double kp = 0.5;
+        par->th1 =par->th1 - kp * (par->th1 - (aimth1- arc/2.0 ));
+        par->th2 =par->th2 - kp * (par->th2 - (aimth2- arc/2.0));
+        par->th3 =par->th3 - kp * (par->th3 - (aimth3 - arc/2.0));
 
     }
 

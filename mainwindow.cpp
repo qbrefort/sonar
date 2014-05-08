@@ -39,18 +39,25 @@ void MainWindow::on_ButtonStart_clicked()
     double ymin=-10;
     double ymax=10;
 
-    par->th1=1;
-    par->yr=9;
-
+    par->th1= 1 * M_PI/180;
+    par->th2= 20 * M_PI/180;
+    par->th2= -40 * M_PI/180;
+    par->yr=5;
 
     // run SIVIA
 
     for(int i=0;i<20 ;i++){
         repere* R = new repere(this,ui->graphicsView,xmin,xmax,ymin,ymax);
         Sivia sivia(*R,par);
-        par->th1+=3.14/4;
+        if(par->state.compare("found")!=0){
+            par->th1+=3.14/4;
+            par->th2+=3.14/4;
+            par->th3+=3.14/4;
+        }
+        else cout<<"fouund"<<endl;
+
         par->yr-=1;
-        QTime dieTime= QTime::currentTime().addMSecs(3000);
+        QTime dieTime= QTime::currentTime().addMSecs(300);
         while( QTime::currentTime() < dieTime )
         QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
         if (par->isinside1==1){
@@ -65,6 +72,7 @@ void MainWindow::on_ButtonStart_clicked()
             cout<<"found3:"<<par->xin<<";"<<par->yin<<endl;
             par->isinside3=0;
         }
+
     }
 
 }

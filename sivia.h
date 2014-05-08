@@ -3,6 +3,7 @@
 
 #include "repere.h"
 #include "ibex.h"
+#include <string>
 
 using namespace ibex;
 using namespace std;
@@ -17,6 +18,7 @@ struct sivia_struct{
     int inside;
     int isinside;
     int isinside1,isinside2,isinside3;
+    std::string state;
     vector<IntervalVector> vin;
 };
 
