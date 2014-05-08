@@ -5,6 +5,7 @@
 #include "sivia.h"
 
 double epsilon;
+sivia_struct *par = new sivia_struct();
 
 MainWindow::MainWindow(QWidget *parent) :  QMainWindow(parent), ui(new Ui::MainWindow) {
     ui->setupUi(this);
@@ -12,6 +13,15 @@ MainWindow::MainWindow(QWidget *parent) :  QMainWindow(parent), ui(new Ui::MainW
 
 void MainWindow::Init() {
     epsilon=ui->EpsilonSpinBox->value();
+    par->epsilon = epsilon;
+    par->xb1=-4;
+    par->xb2=-6;
+    par->xb3=5;
+    par->yb1=5;
+    par->yb2=-7;
+    par->yb3=0;
+    par->isinside=0;par->isinside1=0;par->isinside2=0;par->isinside3=0;
+    par->sonar_radius = 7;
 }
 
 MainWindow::~MainWindow() {
@@ -29,17 +39,32 @@ void MainWindow::on_ButtonStart_clicked()
     double ymin=-10;
     double ymax=10;
 
+    par->th1=1;
+    par->yr=9;
+
+
     // run SIVIA
-    double th1=0;
-    double ry=9;
+
     for(int i=0;i<20 ;i++){
         repere* R = new repere(this,ui->graphicsView,xmin,xmax,ymin,ymax);
-        Sivia sivia(*R,epsilon,th1,ry);
-        th1+=3.14/4;
-        ry-=1;
-        QTime dieTime= QTime::currentTime().addMSecs(100);
+        Sivia sivia(*R,par);
+        par->th1+=3.14/4;
+        par->yr-=1;
+        QTime dieTime= QTime::currentTime().addMSecs(3000);
         while( QTime::currentTime() < dieTime )
         QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
+        if (par->isinside1==1){
+            cout<<"found1:"<<par->xin<<";"<<par->yin<<endl;
+            par->isinside1=0;
+        }
+        if (par->isinside2==1){
+            cout<<"found2:"<<par->xin<<";"<<par->yin<<endl;
+            par->isinside2=0;
+        }
+        if (par->isinside3==1){
+            cout<<"found3:"<<par->xin<<";"<<par->yin<<endl;
+            par->isinside3=0;
+        }
     }
 
 }

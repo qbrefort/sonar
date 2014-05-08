@@ -97,11 +97,12 @@ void repere::DrawPolygone(double x,double y,double theta,vector<double> X, vecto
         P=Scene->addPolygon(poly1,pen1,brush1);
  }
 //--------------------------------------------------------------------------------------------------
-void repere::DrawRobot(double x,double y,double theta, double s)
+void repere::DrawRobot(double x,double y,double theta,double wr,double lr, double s)
 {   vector<double> X,Y;
-    X.push_back(0*s); Y.push_back(-1*s);
-    X.push_back(3*s); Y.push_back(0*s);
-    X.push_back(0*s); Y.push_back(1*s);
+    X.push_back(0*s); Y.push_back(0*s);
+    X.push_back(lr*s); Y.push_back(0*s);
+    X.push_back(lr*s); Y.push_back(wr*s);
+    X.push_back(0*s); Y.push_back(wr*s);
     DrawPolygone(x,y,theta,X,Y,QPen(Qt::blue),QBrush(Qt::NoBrush));
 }
 //--------------------------------------------------------------------------------------------------
