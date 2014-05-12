@@ -70,14 +70,14 @@ Sivia::Sivia(repere& R, struct sivia_struct *par) : R(R) {
     Variable x,y;
     double xb=par->xb1,yb=par->yb1;
 
-    double arc=3.14/4;
+    double arc = par->sonar_arc;
 
     double r = pow(par->sonar_radius,2);
-    double th1 = par->th1;
+    double th1 = par->th[0];
     double th2=th1+arc;
-    double th21= par->th2;
+    double th21= par->th[1];
     double th22=th21 + arc;
-    double th31= par->th3;
+    double th31= par->th[2];
     double th32=th31 + arc;
     double e=0.5;
     double epsilon = par->epsilon;
@@ -86,9 +86,9 @@ Sivia::Sivia(repere& R, struct sivia_struct *par) : R(R) {
     Function f(x,y,sqr(x-xb)+sqr(y-yb));
 
     NumConstraint c1(x,y,f(x,y)<=r+e);
-    NumConstraint c2(x,y,f(x,y)>=0);
+    NumConstraint c2(x,y,f(x,y)>=e);
     NumConstraint c3(x,y,f(x,y)>r+e);
-    NumConstraint c4(x,y,f(x,y)<0);
+    NumConstraint c4(x,y,f(x,y)<e);
 
 
     double sign1,sign2;
@@ -136,9 +136,9 @@ Sivia::Sivia(repere& R, struct sivia_struct *par) : R(R) {
 
     Function f2(x,y,sqr(x-xb2)+sqr(y-yb2));
     NumConstraint c21(x,y,f2(x,y)<=r+e);
-    NumConstraint c22(x,y,f2(x,y)>=0);
+    NumConstraint c22(x,y,f2(x,y)>=e);
     NumConstraint c23(x,y,f2(x,y)>r+e);
-    NumConstraint c24(x,y,f2(x,y)<0);
+    NumConstraint c24(x,y,f2(x,y)<e);
 
 
     double sign21,sign22;
@@ -187,9 +187,9 @@ Sivia::Sivia(repere& R, struct sivia_struct *par) : R(R) {
 
     Function f3(x,y,sqr(x-xb3)+sqr(y-yb3));
     NumConstraint c31(x,y,f3(x,y)<=r+e);
-    NumConstraint c32(x,y,f3(x,y)>=0);
+    NumConstraint c32(x,y,f3(x,y)>=e);
     NumConstraint c33(x,y,f3(x,y)>r+e);
-    NumConstraint c34(x,y,f3(x,y)<0);
+    NumConstraint c34(x,y,f3(x,y)<e);
 
 
     double sign31,sign32;
@@ -232,14 +232,36 @@ Sivia::Sivia(repere& R, struct sivia_struct *par) : R(R) {
 
     //CtcQInter inter(inside,1);
 
+    //Artifact MODELISATION
+
+    double xa = par->xa;
+    double ya = par->ya;
+
+    double ra = par->ra;
+
+    Function f_a(x,y,sqr(x-xa)+sqr(y-ya));
+
+    NumConstraint ca1(x,y,f_a(x,y)<=ra);
+    NumConstraint ca2(x,y,f_a(x,y)>=0);
+    NumConstraint ca3(x,y,f_a(x,y)>ra);
+    NumConstraint ca4(x,y,f_a(x,y)<0);
+
+    CtcFwdBwd aout1(ca1);
+    CtcFwdBwd aout2(ca2);
+    CtcFwdBwd ain1(ca3);
+    CtcFwdBwd ain2(ca4);
+
+    CtcUnion ain(ain1,ain2);
+    CtcCompo aout(aout1,aout2);
+
 
     //Robot MODELISATION
 
     double xr = par->xr; //robot position x
     double yr = par->yr; //robot position y
 
-    double wr = 1; //robot width
-    double lr = 10; //robot length
+    double wr = par->wr; //robot width
+    double lr = par->lr; //robot length
 
     NumConstraint inrx1(x,y,x>xr+wr/2);
     NumConstraint outrx1(x,y,x<xr+wr/2);
@@ -273,14 +295,29 @@ Sivia::Sivia(repere& R, struct sivia_struct *par) : R(R) {
     CtcCompo outside(outsideb,outr);
     CtcUnion inside(insideb,inr);
 
-    CtcUnion inside1r(inside1,inr);
-    CtcCompo outside1r(outside1,outr);
+    int maxq = 3; //nb of contractors
+    int Qinter = 2;
+    int ctcq = maxq - Qinter + 1; //nb for q-relaxed function of Ibex
 
-    CtcUnion inside2r(inside2,inr);
-    CtcCompo outside2r(outside2,outr);
 
-    CtcUnion inside3r(inside3,inr);
-    CtcCompo outside3r(outside3,outr);
+    Array<Ctc> inside1r1(inside1,inr,ain);
+    Array<Ctc> outside1r1(outside1,outr,aout);
+
+    Array<Ctc> inside2r1(inside2,inr,ain);
+    Array<Ctc> outside2r1(outside2,outr,aout);
+
+    Array<Ctc> inside3r1(inside3,inr,ain);
+    Array<Ctc> outside3r1(outside3,outr,aout);
+
+    CtcQInter outside1r(outside1r1,Qinter);
+    CtcQInter inside1r(inside1r1,ctcq);
+
+    CtcQInter outside2r(outside2r1,Qinter);
+    CtcQInter inside2r(inside2r1,ctcq);
+
+    CtcQInter outside3r(outside3r1,Qinter);
+    CtcQInter inside3r(inside3r1,ctcq);
+
 
     // Build the initial box.
     IntervalVector box(2);
@@ -319,7 +356,6 @@ Sivia::Sivia(repere& R, struct sivia_struct *par) : R(R) {
         par->isinside1=1;
         par->isinside=0;
     }
-    par->vin.clear();
 
     IntervalVector box2(2);
     box2[0]=Interval(-10,10);
@@ -351,11 +387,10 @@ Sivia::Sivia(repere& R, struct sivia_struct *par) : R(R) {
             }
     }
     if(par->isinside==1){
-        robot_position_estimator(nbox2,par);
+        if(nbox2>nbox1)    robot_position_estimator(nbox2,par);
         par->isinside2=1;
         par->isinside=0;
     }
-    par->vin.clear();
     IntervalVector box3(2);
     box3[0]=Interval(-10,10);
     box3[1]=Interval(-10,10);
@@ -386,36 +421,51 @@ Sivia::Sivia(repere& R, struct sivia_struct *par) : R(R) {
             }
     }
     if(par->isinside==1){
-        robot_position_estimator(nbox3,par);
+        if(nbox3>nbox2+nbox1) robot_position_estimator(nbox3,par);
         par->isinside3=1;
         par->isinside=0;
     }
-    par->vin.clear();
     par->state.clear();
     if (par->isinside1 ==1 || par->isinside2 ==1 || par->isinside3 ==1){
+        double *aimth = new double[3];
+        aimth[0] = get_angle(xb,yb,par->xin,par->yin)+M_PI ;
+        aimth[1] = get_angle(xb2,yb2,par->xin,par->yin)+M_PI;
+        aimth[2] = get_angle(xb3,yb3,par->xin,par->yin)+M_PI;
 
-        double aimth1 = get_angle(xb,yb,par->xin,par->yin)+M_PI ;
-        double aimth2 = get_angle(xb2,yb2,par->xin,par->yin)+M_PI;
-        double aimth3 = get_angle(xb3,yb3,par->xin,par->yin)+M_PI;
-
-        R.DrawLine(xb,yb,xb+r*cos(aimth1),yb+r*sin(aimth1),QPen(Qt::red));
-        R.DrawLine(xb2,yb2,xb2+r*cos(aimth2),yb2+r*sin(aimth2),QPen(Qt::red));
-        R.DrawLine(xb3,yb3,xb3+r*cos(aimth3),yb3+r*sin(aimth3),QPen(Qt::red));
+        R.DrawLine(xb,yb,xb+r*cos(aimth[0]),yb+r*sin(aimth[0]),QPen(Qt::red));
+        R.DrawLine(xb2,yb2,xb2+r*cos(aimth[1]),yb2+r*sin(aimth[1]),QPen(Qt::red));
+        R.DrawLine(xb3,yb3,xb3+r*cos(aimth[2]),yb3+r*sin(aimth[2]),QPen(Qt::red));
 
         par->state = std::string("found");
-        double kp = 0.5;
-        par->th1 =par->th1 - kp * (par->th1 - (aimth1- arc/2.0 ));
-        par->th2 =par->th2 - kp * (par->th2 - (aimth2- arc/2.0));
-        par->th3 =par->th3 - kp * (par->th3 - (aimth3 - arc/2.0));
+        double kp = par->kp;
+        double u[3];
 
+        for (int i=0;i<3;i++){
+            u[i] =   -kp*atan(tan((par->th[i] - (aimth[i] - arc/2.0 ))/2));
+            if(u[i]>par->sonar_speed) par->th[i] += par->sonar_speed;
+            if(u[i]<-par->sonar_speed) par->th[i] += -par->sonar_speed;
+            else par->th[i] += u[i];
+        }
+//        for (int i=0;i<3;i++){
+//            u[i] =   atan(tan((par->th[i] - (aimth[i] - arc/2.0 ))/2));
+//            par->th[i] -=u[i];
+//        }
     }
 
     r = sqrt(r);
-    cout<<"th1"<<th1<<endl;
+    //cout<<"th1"<<th1<<endl;
     R.DrawLine(xb,yb,xb+r*cos(th2),yb+r*sin(th2),QPen(Qt::green));
     R.DrawLine(xb2,yb2,xb2+r*cos(th22),yb2+r*sin(th22),QPen(Qt::green));
     R.DrawLine(xb3,yb3,xb3+r*cos(th32),yb3+r*sin(th32),QPen(Qt::green));
 
+    R.DrawLine(xb,yb,xb+r*cos(th1),yb+r*sin(th1),QPen(Qt::green));
+    R.DrawLine(xb2,yb2,xb2+r*cos(th21),yb2+r*sin(th21),QPen(Qt::green));
+    R.DrawLine(xb3,yb3,xb3+r*cos(th31),yb3+r*sin(th31),QPen(Qt::green));
+
+    R.DrawEllipse(par->xa,par->ya,par->ra,QPen(Qt::black),QBrush(Qt::NoBrush));
+
     R.DrawRobot(xr-wr/2,yr+lr/2,-3.14/2,wr,lr);
     R.Save("paving");
+
+    par->vin.clear();
 }

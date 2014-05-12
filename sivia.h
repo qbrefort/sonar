@@ -13,11 +13,17 @@ struct sivia_struct{
     double xin,yin;
     double epsilon;
     double th1,th2,th3;
+    double *th;
     double xr,yr;
+    double wr,lr;
+    double xa,ya,ra;
     double sonar_radius;
+    double sonar_arc;
+    double sonar_speed;
     int inside;
     int isinside;
     int isinside1,isinside2,isinside3;
+    double kp;
     std::string state;
     vector<IntervalVector> vin;
 };
