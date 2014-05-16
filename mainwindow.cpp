@@ -10,11 +10,11 @@ sivia_struct *par = new sivia_struct();
 
 MainWindow::MainWindow(QWidget *parent) :  QMainWindow(parent), ui(new Ui::MainWindow) {
     ui->setupUi(this);
-    ui->xb1_SpinBox->setValue(-3);
-    ui->yb1_SpinBox->setValue(5);
-    ui->xb2_SpinBox->setValue(-4);
-    ui->yb2_SpinBox->setValue(-6);
-    ui->xb3_SpinBox->setValue(2);
+    ui->xb1_SpinBox->setValue(-5);
+    ui->yb1_SpinBox->setValue(-5);
+    ui->xb2_SpinBox->setValue(0);
+    ui->yb2_SpinBox->setValue(6);
+    ui->xb3_SpinBox->setValue(4);
     ui->yb3_SpinBox->setValue(2);
     motion = ui->checkBox->isChecked();
 }
@@ -32,7 +32,7 @@ void MainWindow::Init() {
     par->lr = 4;
     par->ya = -10;
     par->xa = 3;
-    par->ra = 0.1;
+    par->ra = 0.3;
 }
 
 MainWindow::~MainWindow() {
@@ -60,8 +60,12 @@ void MainWindow::on_ButtonStart_clicked()
         par->xr=0;
     }
     // run SIVIA
-
+    double xrpos[30];
+    double yrpos[30];
+    double areax[30];
+    double areay[30];
     for(int i=0;i<30 ;i++){
+            cout<<"new "<<i<<endl;
         repere* R = new repere(this,ui->graphicsView,xmin,xmax,ymin,ymax);
         Sivia sivia(*R,par);
         if(par->state.compare("found")!=0){
@@ -69,27 +73,43 @@ void MainWindow::on_ButtonStart_clicked()
                 par->th[i]+=par->sonar_speed;
             }
         }
-        else cout<<"fouund"<<endl;
+//        else cout<<"fouund"<<endl;
         par->ya +=1;
         par->xa += 0;//sin(par->xa);
         if(motion){
             par->yr+=1;
-            par->xr+=sin(par->yr);
+            par->xr+=0.1*sin(0.5*par->yr);
         }
 
-        QTime dieTime= QTime::currentTime().addMSecs(300);
+        try{
+            xrpos[i] = par->xin;
+            yrpos[i] = par->yin;
+            areax[i] = par->areax;
+            areay[i] = par->areay;
+            double box=0.2;
+            cout<<"draw"<<endl;
+            for (int j=1;j<i+1;j++){
+//                R->DrawBox(xrpos[j]-box,xrpos[j]+box,yrpos[j]-box,yrpos[j]+box,QPen(Qt::darkMagenta),QBrush(Qt::NoBrush));
+                R->DrawBox(xrpos[j]-areax[j]/2,xrpos[j]+areax[j]/2,yrpos[j]-areay[j]/2,yrpos[j]+areay[j]/2,QPen(Qt::darkMagenta),QBrush(Qt::NoBrush));
+            }
+        }
+        catch(const char* msg){
+            double error=1;
+        }
+
+        QTime dieTime= QTime::currentTime().addMSecs(500);
         while( QTime::currentTime() < dieTime )
         QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
         if (par->isinside1==1){
-            cout<<"found1:"<<par->xin<<";"<<par->yin<<endl;
+//            cout<<"found1:"<<par->xin<<";"<<par->yin<<endl;
             par->isinside1=0;
         }
         if (par->isinside2==1){
-            cout<<"found2:"<<par->xin<<";"<<par->yin<<endl;
+//            cout<<"found2:"<<par->xin<<";"<<par->yin<<endl;
             par->isinside2=0;
         }
         if (par->isinside3==1){
-            cout<<"found3:"<<par->xin<<";"<<par->yin<<endl;
+//            cout<<"found3:"<<par->xin<<";"<<par->yin<<endl;
             par->isinside3=0;
         }
 

@@ -11,6 +11,7 @@ using namespace std;
 struct sivia_struct{
     double xb1,xb2,xb3,yb1,yb2,yb3;
     double xin,yin;
+    double area,areax,areay;
     double epsilon;
     double th1,th2,th3;
     double *th;

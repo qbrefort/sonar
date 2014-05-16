@@ -10,7 +10,9 @@ float get_angle(double p1x,double p1y,double p2x,double p2y){
 
 void robot_position_estimator(int ninbox, struct sivia_struct *par){
     double tx[ninbox],ty[ninbox];
-    double xin=0,yin=0;
+    double tax[ninbox],tay[ninbox];
+    double xin=0,yin=0,area=0,taxs=0,tays=0;
+    double xmin=100,xmax=-100,ymin=100,ymax=-100;
     //cout<<"next"<<ninbox<<endl;
     for(int i=0;i<ninbox;i++){
         IntervalVector cur = (par->vin.back());
@@ -19,19 +21,39 @@ void robot_position_estimator(int ninbox, struct sivia_struct *par){
         Interval ycur=cur[1];
         tx[i]=xcur.mid();
         ty[i]=ycur.mid();
+        tax[i]=xcur.diam();
+        tay[i]=ycur.diam();
+
+        if(xcur.lb()<xmin) xmin=xcur.lb();
+        if(xcur.ub()>xmax) xmax=xcur.ub();
+        if(ycur.lb()<ymin) ymin=ycur.lb();
+        if(ycur.ub()>ymax) ymax=ycur.ub();
+
         par->vin.pop_back();
     }
 
     for(int i=0;i<ninbox;i++){
         xin += tx[i];
         yin += ty[i];
+        area += tax[i]*tay[i];
+        taxs += tax[i];
+        tays += tay[i];
     }
     xin/=double(ninbox);
     yin/=double(ninbox);
+    area/=double(ninbox);
 
-    par->xin = xin;
-    par->yin = yin;
-
+    if (area>par->area) {
+        if (xin!=0 & yin!=0){
+            par->xin = xin;
+            par->yin = yin;
+        }
+        par->area = area;
+        par->areax = (xmax-xmin);
+        par->areay = (ymax-ymin);
+    }
+    else
+        cout<<"no update"<<endl;
 }
 
 void Sivia::contract_and_draw(Ctc& c, IntervalVector& X,IntervalVector& viinside,int inside,struct sivia_struct *par,int& nbox, const QColor & pencolor, const QColor & brushcolor) {
@@ -66,6 +88,8 @@ void Sivia::contract_and_draw(Ctc& c, IntervalVector& X,IntervalVector& viinside
 
 Sivia::Sivia(repere& R, struct sivia_struct *par) : R(R) {
 
+    par->area = 0;
+
     // Create the function we want to apply SIVIA on.
     Variable x,y;
     double xb=par->xb1,yb=par->yb1;
@@ -79,8 +103,10 @@ Sivia::Sivia(repere& R, struct sivia_struct *par) : R(R) {
     double th22=th21 + arc;
     double th31= par->th[2];
     double th32=th31 + arc;
-    double e=0.5;
+    double e=1;
     double epsilon = par->epsilon;
+
+    double xin,yin;
 
     // First SONAR
     Function f(x,y,sqr(x-xb)+sqr(y-yb));
@@ -241,9 +267,9 @@ Sivia::Sivia(repere& R, struct sivia_struct *par) : R(R) {
 
     Function f_a(x,y,sqr(x-xa)+sqr(y-ya));
 
-    NumConstraint ca1(x,y,f_a(x,y)<=ra);
+    NumConstraint ca1(x,y,f_a(x,y)<=sqr(ra));
     NumConstraint ca2(x,y,f_a(x,y)>=0);
-    NumConstraint ca3(x,y,f_a(x,y)>ra);
+    NumConstraint ca3(x,y,f_a(x,y)>sqr(ra));
     NumConstraint ca4(x,y,f_a(x,y)<0);
 
     CtcFwdBwd aout1(ca1);
@@ -327,12 +353,12 @@ Sivia::Sivia(repere& R, struct sivia_struct *par) : R(R) {
     // Build the way boxes will be bisected.
     // "LargestFirst" means that the dimension bisected
     // is always the largest one.
+
     int nbox1=0;
     LargestFirst lf;
     IntervalVector viinside1(2);
     stack<IntervalVector> s;
     s.push(box);
-    cout<<"new"<<endl;
     while (!s.empty()) {
         IntervalVector box=s.top();
         s.pop();
@@ -355,6 +381,7 @@ Sivia::Sivia(repere& R, struct sivia_struct *par) : R(R) {
         robot_position_estimator(nbox1,par);
         par->isinside1=1;
         par->isinside=0;
+                cout<<"area1: "<<par->area<<endl;
     }
 
     IntervalVector box2(2);
@@ -387,9 +414,10 @@ Sivia::Sivia(repere& R, struct sivia_struct *par) : R(R) {
             }
     }
     if(par->isinside==1){
-        if(nbox2>nbox1)    robot_position_estimator(nbox2,par);
+        robot_position_estimator(nbox2,par);
         par->isinside2=1;
         par->isinside=0;
+                cout<<"area2: "<<par->area<<endl;
     }
     IntervalVector box3(2);
     box3[0]=Interval(-10,10);
@@ -421,9 +449,10 @@ Sivia::Sivia(repere& R, struct sivia_struct *par) : R(R) {
             }
     }
     if(par->isinside==1){
-        if(nbox3>nbox2+nbox1) robot_position_estimator(nbox3,par);
+        robot_position_estimator(nbox3,par);
         par->isinside3=1;
         par->isinside=0;
+        cout<<"area3: "<<par->area<<endl;
     }
     par->state.clear();
     if (par->isinside1 ==1 || par->isinside2 ==1 || par->isinside3 ==1){
