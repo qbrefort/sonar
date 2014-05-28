@@ -25,6 +25,7 @@ struct sivia_struct{
     int isinside;
     int isinside1,isinside2,isinside3;
     double kp;
+    double ei;
     std::string state;
     vector<IntervalVector> vin;
 };

@@ -16,6 +16,7 @@ MainWindow::MainWindow(QWidget *parent) :  QMainWindow(parent), ui(new Ui::MainW
     ui->yb2_SpinBox->setValue(6);
     ui->xb3_SpinBox->setValue(4);
     ui->yb3_SpinBox->setValue(2);
+    ui->eiSpinBox->setValue(0.1);
     motion = ui->checkBox->isChecked();
 }
 
@@ -30,8 +31,8 @@ void MainWindow::Init() {
     par->th = new double[3];
     par->wr = 1;
     par->lr = 4;
-    par->ya = -10;
-    par->xa = 3;
+    par->ya = -12;
+    par->xa = -2;
     par->ra = 0.3;
 }
 
@@ -49,6 +50,7 @@ void MainWindow::on_ButtonStart_clicked()
     double xmax=10;
     double ymin=-10;
     double ymax=10;
+    double *xrpos,*yrpos;
 
     par->th[0]= -70 * M_PI/180;
     par->th[1]= -120 * M_PI/180;
@@ -60,12 +62,11 @@ void MainWindow::on_ButtonStart_clicked()
         par->xr=0;
     }
     // run SIVIA
-    double xrpos[30];
-    double yrpos[30];
+    xrpos = new double[30];
+    yrpos = new double[30];
     double areax[30];
     double areay[30];
     for(int i=0;i<30 ;i++){
-            cout<<"new "<<i<<endl;
         repere* R = new repere(this,ui->graphicsView,xmin,xmax,ymin,ymax);
         Sivia sivia(*R,par);
         if(par->state.compare("found")!=0){
@@ -87,7 +88,6 @@ void MainWindow::on_ButtonStart_clicked()
             areax[i] = par->areax;
             areay[i] = par->areay;
             double box=0.2;
-            cout<<"draw"<<endl;
             for (int j=1;j<i+1;j++){
 //                R->DrawBox(xrpos[j]-box,xrpos[j]+box,yrpos[j]-box,yrpos[j]+box,QPen(Qt::darkMagenta),QBrush(Qt::NoBrush));
                 R->DrawBox(xrpos[j]-areax[j]/2,xrpos[j]+areax[j]/2,yrpos[j]-areay[j]/2,yrpos[j]+areay[j]/2,QPen(Qt::darkMagenta),QBrush(Qt::NoBrush));
@@ -155,4 +155,9 @@ void MainWindow::on_yb3_SpinBox_valueChanged(double arg1)
 void MainWindow::on_checkBox_toggled(bool checked)
 {
     motion = checked;
+}
+
+void MainWindow::on_eiSpinBox_valueChanged(double arg1)
+{
+    par->ei = arg1;
 }

@@ -33,6 +33,7 @@ private slots:
     void on_xb3_SpinBox_valueChanged(double arg1);
     void on_yb3_SpinBox_valueChanged(double arg1);
     void on_checkBox_toggled(bool checked);
+    void on_eiSpinBox_valueChanged(double arg1);
 };
 
 

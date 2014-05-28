@@ -92,7 +92,9 @@ Sivia::Sivia(repere& R, struct sivia_struct *par) : R(R) {
 
     // Create the function we want to apply SIVIA on.
     Variable x,y;
+    double ei = par->ei;
     double xb=par->xb1,yb=par->yb1;
+    Interval xbi=Interval(par->xb1-ei,par->xb1+ei),ybi=Interval(par->yb1-ei,par->yb1+ei);
 
     double arc = par->sonar_arc;
 
@@ -109,7 +111,7 @@ Sivia::Sivia(repere& R, struct sivia_struct *par) : R(R) {
     double xin,yin;
 
     // First SONAR
-    Function f(x,y,sqr(x-xb)+sqr(y-yb));
+    Function f(x,y,sqr(x-xbi)+sqr(y-ybi));
 
     NumConstraint c1(x,y,f(x,y)<=r+e);
     NumConstraint c2(x,y,f(x,y)>=e);
@@ -124,10 +126,10 @@ Sivia::Sivia(repere& R, struct sivia_struct *par) : R(R) {
     else sign2=-1;
 
 
-    NumConstraint cth11(x,y,sign1*(y-yb-((sin(th1))/(cos(th1)))*(x-xb))<0);
-    NumConstraint cth12(x,y,sign1*(y-yb-((sin(th1))/(cos(th1)))*(x-xb))>0);
-    NumConstraint cth21(x,y,sign2*(y-yb-((sin(th2))/(cos(th2)))*(x-xb))<0);
-    NumConstraint cth22(x,y,sign2*(y-yb-((sin(th2))/(cos(th2)))*(x-xb))>0);
+    NumConstraint cth11(x,y,sign1*(y-ybi-((sin(th1))/(cos(th1)))*(x-xbi))<0);
+    NumConstraint cth12(x,y,sign1*(y-ybi-((sin(th1))/(cos(th1)))*(x-xbi))>0);
+    NumConstraint cth21(x,y,sign2*(y-ybi-((sin(th2))/(cos(th2)))*(x-xbi))<0);
+    NumConstraint cth22(x,y,sign2*(y-ybi-((sin(th2))/(cos(th2)))*(x-xbi))>0);
 
 
 //     Create contractors with respect to each
@@ -159,8 +161,9 @@ Sivia::Sivia(repere& R, struct sivia_struct *par) : R(R) {
 
     // Second SONAR
     double xb2=par->xb2,yb2=par->yb2;
+    Interval xb2i=Interval(par->xb2-ei,par->xb2+ei),yb2i=Interval(par->yb2-ei,par->yb2+ei);
 
-    Function f2(x,y,sqr(x-xb2)+sqr(y-yb2));
+    Function f2(x,y,sqr(x-xb2i)+sqr(y-yb2i));
     NumConstraint c21(x,y,f2(x,y)<=r+e);
     NumConstraint c22(x,y,f2(x,y)>=e);
     NumConstraint c23(x,y,f2(x,y)>r+e);
@@ -174,10 +177,10 @@ Sivia::Sivia(repere& R, struct sivia_struct *par) : R(R) {
     else sign22=-1;
 
 
-    NumConstraint cth211(x,y,sign21*(y-yb2-((sin(th21))/(cos(th21)))*(x-xb2))<0);
-    NumConstraint cth212(x,y,sign21*(y-yb2-((sin(th21))/(cos(th21)))*(x-xb2))>0);
-    NumConstraint cth221(x,y,sign22*(y-yb2-((sin(th22))/(cos(th22)))*(x-xb2))<0);
-    NumConstraint cth222(x,y,sign22*(y-yb2-((sin(th22))/(cos(th22)))*(x-xb2))>0);
+    NumConstraint cth211(x,y,sign21*(y-yb2i-((sin(th21))/(cos(th21)))*(x-xb2i))<0);
+    NumConstraint cth212(x,y,sign21*(y-yb2i-((sin(th21))/(cos(th21)))*(x-xb2i))>0);
+    NumConstraint cth221(x,y,sign22*(y-yb2i-((sin(th22))/(cos(th22)))*(x-xb2i))<0);
+    NumConstraint cth222(x,y,sign22*(y-yb2i-((sin(th22))/(cos(th22)))*(x-xb2i))>0);
 
 //     Create contractors with respect to each
 //     of the previous constraints.
@@ -210,8 +213,9 @@ Sivia::Sivia(repere& R, struct sivia_struct *par) : R(R) {
     //Third SONAR
 
     double xb3=par->xb3,yb3=par->yb3;
+    Interval xb3i=Interval(par->xb3-ei,par->xb3+ei),yb3i=Interval(par->yb3-ei,par->yb3+ei);
 
-    Function f3(x,y,sqr(x-xb3)+sqr(y-yb3));
+    Function f3(x,y,sqr(x-xb3i)+sqr(y-yb3i));
     NumConstraint c31(x,y,f3(x,y)<=r+e);
     NumConstraint c32(x,y,f3(x,y)>=e);
     NumConstraint c33(x,y,f3(x,y)>r+e);
@@ -225,10 +229,10 @@ Sivia::Sivia(repere& R, struct sivia_struct *par) : R(R) {
     else sign32=-1;
 
 
-    NumConstraint cth311(x,y,sign31*(y-yb3-((sin(th31))/(cos(th31)))*(x-xb3))<0);
-    NumConstraint cth312(x,y,sign31*(y-yb3-((sin(th31))/(cos(th31)))*(x-xb3))>0);
-    NumConstraint cth321(x,y,sign32*(y-yb3-((sin(th32))/(cos(th32)))*(x-xb3))<0);
-    NumConstraint cth322(x,y,sign32*(y-yb3-((sin(th32))/(cos(th32)))*(x-xb3))>0);
+    NumConstraint cth311(x,y,sign31*(y-yb3i-((sin(th31))/(cos(th31)))*(x-xb3i))<0);
+    NumConstraint cth312(x,y,sign31*(y-yb3i-((sin(th31))/(cos(th31)))*(x-xb3i))>0);
+    NumConstraint cth321(x,y,sign32*(y-yb3i-((sin(th32))/(cos(th32)))*(x-xb3i))<0);
+    NumConstraint cth322(x,y,sign32*(y-yb3i-((sin(th32))/(cos(th32)))*(x-xb3i))>0);
 
 //     Create contractors with respect to each
 //     of the previous constraints.
@@ -483,6 +487,10 @@ Sivia::Sivia(repere& R, struct sivia_struct *par) : R(R) {
 
     r = sqrt(r);
     //cout<<"th1"<<th1<<endl;
+    R.DrawEllipse(xb,yb,par->ei,QPen(Qt::black),QBrush(Qt::NoBrush));
+    R.DrawEllipse(xb2,yb2,par->ei,QPen(Qt::black),QBrush(Qt::NoBrush));
+    R.DrawEllipse(xb3,yb3,par->ei,QPen(Qt::black),QBrush(Qt::NoBrush));
+
     R.DrawLine(xb,yb,xb+r*cos(th2),yb+r*sin(th2),QPen(Qt::green));
     R.DrawLine(xb2,yb2,xb2+r*cos(th22),yb2+r*sin(th22),QPen(Qt::green));
     R.DrawLine(xb3,yb3,xb3+r*cos(th32),yb3+r*sin(th32),QPen(Qt::green));
