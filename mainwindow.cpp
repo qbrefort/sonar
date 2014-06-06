@@ -26,11 +26,12 @@ void MainWindow::Init() {
     par->epsilon = epsilon;
     par->isinside=0;par->isinside1=0;par->isinside2=0;par->isinside3=0;
     par->sonar_radius = 7;
-    par->sonar_arc = M_PI/8;
-    par->sonar_speed = M_PI/8;
+    par->sonar_arc = M_PI/4;
+    par->sonar_speed = M_PI/4;
     par->th = new double[3];
     par->wr = 1;
     par->lr = 4;
+    par->thick = 0.25;
     par->ya = -12;
     par->xa = -2;
     par->ra = 0.3;

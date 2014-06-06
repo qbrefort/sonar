@@ -17,6 +17,7 @@ struct sivia_struct{
     double *th;
     double xr,yr;
     double wr,lr;
+    double thick;
     double xa,ya,ra;
     double sonar_radius;
     double sonar_arc;

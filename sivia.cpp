@@ -292,11 +292,13 @@ Sivia::Sivia(repere& R, struct sivia_struct *par) : R(R) {
 
     double wr = par->wr; //robot width
     double lr = par->lr; //robot length
+    double ep = par->thick;
 
-    NumConstraint inrx1(x,y,x>xr+wr/2);
-    NumConstraint outrx1(x,y,x<xr+wr/2);
-    NumConstraint inrx2(x,y,x<x-wr/2);
-    NumConstraint outrx2(x,y,x>xr-wr/2);
+    xr = par->xr - wr/2;
+    NumConstraint inrx1(x,y,x>xr+ep);
+    NumConstraint outrx1(x,y,x<xr+ep);
+    NumConstraint inrx2(x,y,x<xr-ep);
+    NumConstraint outrx2(x,y,x>xr-ep);
     NumConstraint inry1(x,y,y<yr-lr/2);
     NumConstraint outry1(x,y,y>yr-lr/2);
     NumConstraint inry2(x,y,y>yr+lr/2);
@@ -312,18 +314,102 @@ Sivia::Sivia(repere& R, struct sivia_struct *par) : R(R) {
     CtcFwdBwd outcry1(outry1);
     CtcFwdBwd outcry2(outry2);
 
-    CtcCompo outy(outcry1,outcry2,outcrx2);
-    CtcUnion iny(incry1,incry2,incrx2);
-
     CtcUnion inrtemp(incrx1,incrx2,incry1);
-    CtcUnion inr(inrtemp,incry2);
+    CtcUnion inr1(inrtemp,incry2);
     CtcCompo outrtemp(outcrx1,outcrx2,outcry1);
-    CtcCompo outr(outrtemp,outcry2);
+    CtcCompo outr1(outrtemp,outcry2);
 
-    CtcCompo insideb(inside1,inside2,inr);
-    CtcUnion outsideb(outside1,outside2);
-    CtcCompo outside(outsideb,outr);
-    CtcUnion inside(insideb,inr);
+    //2nd rectangle
+    xr = par->xr + wr/2;
+
+    NumConstraint inrx21(x,y,x>xr+ep);
+    NumConstraint outrx21(x,y,x<xr+ep);
+    NumConstraint inrx22(x,y,x<xr-ep);
+    NumConstraint outrx22(x,y,x>xr-ep);
+    NumConstraint inry21(x,y,y<yr-lr/2-ep);
+    NumConstraint outry21(x,y,y>yr-lr/2-ep);
+    NumConstraint inry22(x,y,y>yr+lr/2+ep);
+    NumConstraint outry22(x,y,y<yr+lr/2+ep);
+
+    CtcFwdBwd incrx21(inrx21);
+    CtcFwdBwd incrx22(inrx22);
+    CtcFwdBwd incry21(inry21);
+    CtcFwdBwd incry22(inry22);
+
+    CtcFwdBwd outcrx21(outrx21);
+    CtcFwdBwd outcrx22(outrx22);
+    CtcFwdBwd outcry21(outry21);
+    CtcFwdBwd outcry22(outry22);
+
+    CtcUnion inrtemp2(incrx21,incrx22,incry21);
+    CtcUnion inr2(inrtemp2,incry22);
+    CtcCompo outrtemp2(outcrx21,outcrx22,outcry21);
+    CtcCompo outr2(outrtemp2,outcry22);
+
+
+    //3nd rectangle top rectangle
+    yr=par->yr+par->lr/2;
+    xr=par->xr;
+
+    NumConstraint inrx31(x,y,x>xr+wr/2);
+    NumConstraint outrx31(x,y,x<xr+wr/2);
+    NumConstraint inrx32(x,y,x<xr-wr/2);
+    NumConstraint outrx32(x,y,x>xr-wr/2);
+    NumConstraint inry31(x,y,y<yr-ep);
+    NumConstraint outry31(x,y,y>yr-ep);
+    NumConstraint inry32(x,y,y>yr+ep);
+    NumConstraint outry32(x,y,y<yr+ep);
+
+    CtcFwdBwd incrx31(inrx31);
+    CtcFwdBwd incrx32(inrx32);
+    CtcFwdBwd incry31(inry31);
+    CtcFwdBwd incry32(inry32);
+
+    CtcFwdBwd outcrx31(outrx31);
+    CtcFwdBwd outcrx32(outrx32);
+    CtcFwdBwd outcry31(outry31);
+    CtcFwdBwd outcry32(outry32);
+
+    CtcUnion inrtemp3(incrx31,incrx32,incry31);
+    CtcUnion inr3(inrtemp3,incry32);
+    CtcCompo outrtemp3(outcrx31,outcrx32,outcry31);
+    CtcCompo outr3(outrtemp3,outcry32);
+
+    //4 rectangle bot
+
+    //3nd rectangle top rectangle
+    yr=par->yr-par->lr/2;
+    xr=par->xr;
+
+    NumConstraint inrx41(x,y,x>xr+wr/2);
+    NumConstraint outrx41(x,y,x<xr+wr/2);
+    NumConstraint inrx42(x,y,x<xr-wr/2);
+    NumConstraint outrx42(x,y,x>xr-wr/2);
+    NumConstraint inry41(x,y,y<yr-ep);
+    NumConstraint outry41(x,y,y>yr-ep);
+    NumConstraint inry42(x,y,y>yr+ep);
+    NumConstraint outry42(x,y,y<yr+ep);
+
+    CtcFwdBwd incrx41(inrx41);
+    CtcFwdBwd incrx42(inrx42);
+    CtcFwdBwd incry41(inry41);
+    CtcFwdBwd incry42(inry42);
+
+    CtcFwdBwd outcrx41(outrx41);
+    CtcFwdBwd outcrx42(outrx42);
+    CtcFwdBwd outcry41(outry41);
+    CtcFwdBwd outcry42(outry42);
+
+    CtcUnion inrtemp4(incrx41,incrx42,incry41);
+    CtcUnion inr4(inrtemp4,incry42);
+    CtcCompo outrtemp4(outcrx41,outcrx42,outcry41);
+    CtcCompo outr4(outrtemp4,outcry42);
+
+    CtcCompo inrtp(inr1,inr2,inr3);
+    CtcUnion outrtp(outr1,outr2,outr3);
+
+    CtcCompo inr(inrtp,inr4);
+    CtcUnion outr(outrtp,outr4);
 
     int maxq = 3; //nb of contractors
     int Qinter = 2;
