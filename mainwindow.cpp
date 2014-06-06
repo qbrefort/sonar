@@ -12,7 +12,7 @@ MainWindow::MainWindow(QWidget *parent) :  QMainWindow(parent), ui(new Ui::MainW
     ui->setupUi(this);
     ui->xb1_SpinBox->setValue(-5);
     ui->yb1_SpinBox->setValue(-5);
-    ui->xb2_SpinBox->setValue(0);
+    ui->xb2_SpinBox->setValue(-3);
     ui->yb2_SpinBox->setValue(6);
     ui->xb3_SpinBox->setValue(4);
     ui->yb3_SpinBox->setValue(2);
@@ -31,7 +31,7 @@ void MainWindow::Init() {
     par->th = new double[3];
     par->wr = 1;
     par->lr = 4;
-    par->thick = 0.25;
+    par->thick = 0.10;
     par->ya = -12;
     par->xa = -2;
     par->ra = 0.3;

@@ -272,9 +272,9 @@ Sivia::Sivia(repere& R, struct sivia_struct *par) : R(R) {
     Function f_a(x,y,sqr(x-xa)+sqr(y-ya));
 
     NumConstraint ca1(x,y,f_a(x,y)<=sqr(ra));
-    NumConstraint ca2(x,y,f_a(x,y)>=0);
+    NumConstraint ca2(x,y,f_a(x,y)>=sqr(ra)-par->thick);
     NumConstraint ca3(x,y,f_a(x,y)>sqr(ra));
-    NumConstraint ca4(x,y,f_a(x,y)<0);
+    NumConstraint ca4(x,y,f_a(x,y)<sqr(ra)-par->thick);
 
     CtcFwdBwd aout1(ca1);
     CtcFwdBwd aout2(ca2);
@@ -326,10 +326,10 @@ Sivia::Sivia(repere& R, struct sivia_struct *par) : R(R) {
     NumConstraint outrx21(x,y,x<xr+ep);
     NumConstraint inrx22(x,y,x<xr-ep);
     NumConstraint outrx22(x,y,x>xr-ep);
-    NumConstraint inry21(x,y,y<yr-lr/2-ep);
-    NumConstraint outry21(x,y,y>yr-lr/2-ep);
-    NumConstraint inry22(x,y,y>yr+lr/2+ep);
-    NumConstraint outry22(x,y,y<yr+lr/2+ep);
+    NumConstraint inry21(x,y,y<yr-lr/2);
+    NumConstraint outry21(x,y,y>yr-lr/2);
+    NumConstraint inry22(x,y,y>yr+lr/2);
+    NumConstraint outry22(x,y,y<yr+lr/2);
 
     CtcFwdBwd incrx21(inrx21);
     CtcFwdBwd incrx22(inrx22);
@@ -351,10 +351,10 @@ Sivia::Sivia(repere& R, struct sivia_struct *par) : R(R) {
     yr=par->yr+par->lr/2;
     xr=par->xr;
 
-    NumConstraint inrx31(x,y,x>xr+wr/2);
-    NumConstraint outrx31(x,y,x<xr+wr/2);
-    NumConstraint inrx32(x,y,x<xr-wr/2);
-    NumConstraint outrx32(x,y,x>xr-wr/2);
+    NumConstraint inrx31(x,y,x>xr+wr/2+ep);
+    NumConstraint outrx31(x,y,x<xr+wr/2+ep);
+    NumConstraint inrx32(x,y,x<xr-wr/2-ep);
+    NumConstraint outrx32(x,y,x>xr-wr/2-ep);
     NumConstraint inry31(x,y,y<yr-ep);
     NumConstraint outry31(x,y,y>yr-ep);
     NumConstraint inry32(x,y,y>yr+ep);
@@ -377,14 +377,13 @@ Sivia::Sivia(repere& R, struct sivia_struct *par) : R(R) {
 
     //4 rectangle bot
 
-    //3nd rectangle top rectangle
     yr=par->yr-par->lr/2;
     xr=par->xr;
 
-    NumConstraint inrx41(x,y,x>xr+wr/2);
-    NumConstraint outrx41(x,y,x<xr+wr/2);
-    NumConstraint inrx42(x,y,x<xr-wr/2);
-    NumConstraint outrx42(x,y,x>xr-wr/2);
+    NumConstraint inrx41(x,y,x>xr+wr/2+ep);
+    NumConstraint outrx41(x,y,x<xr+wr/2+ep);
+    NumConstraint inrx42(x,y,x<xr-wr/2-ep);
+    NumConstraint outrx42(x,y,x>xr-wr/2-ep);
     NumConstraint inry41(x,y,y<yr-ep);
     NumConstraint outry41(x,y,y>yr-ep);
     NumConstraint inry42(x,y,y>yr+ep);
@@ -410,6 +409,8 @@ Sivia::Sivia(repere& R, struct sivia_struct *par) : R(R) {
 
     CtcCompo inr(inrtp,inr4);
     CtcUnion outr(outrtp,outr4);
+
+    yr = par->yr;
 
     int maxq = 3; //nb of contractors
     int Qinter = 2;
