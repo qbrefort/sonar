@@ -5,7 +5,7 @@
 #include "sivia.h"
 
 double epsilon;
-bool motion;
+bool motion,artifact;
 sivia_struct *par = new sivia_struct();
 
 MainWindow::MainWindow(QWidget *parent) :  QMainWindow(parent), ui(new Ui::MainWindow) {
@@ -18,6 +18,7 @@ MainWindow::MainWindow(QWidget *parent) :  QMainWindow(parent), ui(new Ui::MainW
     ui->yb3_SpinBox->setValue(2);
     ui->eiSpinBox->setValue(0.1);
     motion = ui->checkBox->isChecked();
+    artifact = ui->artifact_checkBox->isChecked();
 }
 
 void MainWindow::Init() {
@@ -26,8 +27,8 @@ void MainWindow::Init() {
     par->epsilon = epsilon;
     par->isinside=0;par->isinside1=0;par->isinside2=0;par->isinside3=0;
     par->sonar_radius = 7;
-    par->sonar_arc = M_PI/4;
-    par->sonar_speed = M_PI/4;
+    par->sonar_arc = M_PI/8;
+    par->sonar_speed = M_PI/8;
     par->th = new double[3];
     par->wr = 1;
     par->lr = 4;
@@ -75,9 +76,17 @@ void MainWindow::on_ButtonStart_clicked()
                 par->th[i]+=par->sonar_speed;
             }
         }
-//        else cout<<"fouund"<<endl;
-        par->ya +=1;
-        par->xa += 0;//sin(par->xa);
+        if(artifact){
+            //If we want an artifact, make it move near the robot.
+            par->ya +=1;
+            par->xa += 0;//sin(par->xa);
+        }
+        else{
+            //Else put it far away from the action.
+            par->ya = -12;
+            par->xa = -2;
+        }
+
         if(motion){
             par->yr+=1;
             par->xr+=0.1*sin(0.5*par->yr);
@@ -161,4 +170,15 @@ void MainWindow::on_checkBox_toggled(bool checked)
 void MainWindow::on_eiSpinBox_valueChanged(double arg1)
 {
     par->ei = arg1;
+}
+
+void MainWindow::on_artifact_checkBox_toggled(bool checked)
+{
+    artifact = checked;
+}
+
+void MainWindow::on_arc_EpsilonSpinBox_valueChanged(double arg1)
+{
+    par->sonar_arc = M_PI/arg1;
+    par->sonar_speed = M_PI/arg1;
 }

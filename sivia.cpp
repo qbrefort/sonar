@@ -52,8 +52,8 @@ void robot_position_estimator(int ninbox, struct sivia_struct *par){
         par->areax = (xmax-xmin);
         par->areay = (ymax-ymin);
     }
-    else
-        cout<<"no update"<<endl;
+//    else
+//        cout<<"no update"<<endl;
 }
 
 void Sivia::contract_and_draw(Ctc& c, IntervalVector& X,IntervalVector& viinside,int inside,struct sivia_struct *par,int& nbox, const QColor & pencolor, const QColor & brushcolor) {
@@ -472,7 +472,7 @@ Sivia::Sivia(repere& R, struct sivia_struct *par) : R(R) {
         robot_position_estimator(nbox1,par);
         par->isinside1=1;
         par->isinside=0;
-                cout<<"area1: "<<par->area<<endl;
+        //cout<<"area1: "<<par->area<<endl;
     }
 
     IntervalVector box2(2);
@@ -508,7 +508,7 @@ Sivia::Sivia(repere& R, struct sivia_struct *par) : R(R) {
         robot_position_estimator(nbox2,par);
         par->isinside2=1;
         par->isinside=0;
-                cout<<"area2: "<<par->area<<endl;
+        //cout<<"area2: "<<par->area<<endl;
     }
     IntervalVector box3(2);
     box3[0]=Interval(-10,10);
@@ -543,7 +543,7 @@ Sivia::Sivia(repere& R, struct sivia_struct *par) : R(R) {
         robot_position_estimator(nbox3,par);
         par->isinside3=1;
         par->isinside=0;
-        cout<<"area3: "<<par->area<<endl;
+        //cout<<"area3: "<<par->area<<endl;
     }
     par->state.clear();
     if (par->isinside1 ==1 || par->isinside2 ==1 || par->isinside3 ==1){
